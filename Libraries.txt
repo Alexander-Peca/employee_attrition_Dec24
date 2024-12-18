@@ -1,0 +1,11 @@
+Libraries installed initially
+
+conda install pandas=1.5.3 numpy=1.23.5
+
+conda install matplotlib=3.6.3 seaborn=0.12.2
+
+conda install scikit-learn=1.2.2
+
+conda install notebook=6.5.4
+
+
