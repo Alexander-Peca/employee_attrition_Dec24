@@ -1,3 +1,11 @@
+
+# Ignoring word doc and data files
+
+*.csv
+*.xsl
+*.docx
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
