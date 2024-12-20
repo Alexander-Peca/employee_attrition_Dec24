@@ -8,4 +8,4 @@ conda install scikit-learn=1.2.2
 
 conda install notebook=6.5.4
 
-
+conda install scipy 1.13.1
