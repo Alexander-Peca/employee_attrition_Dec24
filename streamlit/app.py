@@ -14,6 +14,7 @@ st.title("Employee Attrition Predictor")
 st.write("Enter employee details to predict the likelihood of attrition.")
 
 # Collect input from users
+gender = st.selectbox("Gender", ["Male", "Female"])
 age = st.slider("Age", 20, 60, 30)
 tenure = st.slider("Tenure (Years)", 0, 40, 5)
 salary = st.number_input("Salary (USD)", min_value=50000, max_value=150000, value=100000)
@@ -39,7 +40,8 @@ q14 = st.slider("Q14: My organization cares about my overall wellbeing.", 1, 5, 
 q15 = st.slider("Q15: I have received meaningful feedback in the last week.", 1, 5, 3)
 q16 = st.slider("Q16: My organization always delivers on the promise we make to customers.", 1, 5, 3)
 
-# Encode categorical variables (e.g., Overtime and Department)
+# Encode categorical variables
+gender_encoded = 1 if gender == "Male" else 0  # Binary encoding for gender
 overtime_encoded = 1 if overtime == "Yes" else 0
 department_encoded = [0] * 5  # Initialize a zero vector for one-hot encoding
 departments = ["Development", "QA", "Support", "Management", "DevOps"]
@@ -47,16 +49,18 @@ if department in departments:
     department_encoded[departments.index(department)] = 1
 
 # Combine all features
-input_data = np.array([
-    age, tenure, salary, overtime_encoded, *department_encoded,
-    q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16
-]).reshape(1, -1)
+input_data = np.array([gender_encoded, age, tenure, salary, overtime_encoded, *department_encoded,
+                       q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16]).reshape(1, -1)
+
+# Log the shape of the input data
+st.write(f"Input Data Shape: {input_data.shape}")
 
 # Predict attrition
 if st.button("Predict"):
-    prob = model.predict_proba(input_data)[0][1]  # Probability of attrition (class 1)
-    prediction = 1 if prob >= threshold else 0
-    st.write(f"Attrition Prediction: {'Yes' if prediction == 1 else 'No'}")
-    st.write(f"Probability of Attrition: {prob:.2f}")
-
-
+    if input_data.shape[1] == 26:
+        prob = model.predict_proba(input_data)[0][1]  # Probability of attrition (class 1)
+        prediction = 1 if prob >= threshold else 0
+        st.write(f"Attrition Prediction: {'Yes' if prediction == 1 else 'No'}")
+        st.write(f"Probability of Attrition: {prob:.2f}")
+    else:
+        st.error(f"Error: Expected 26 features, but got {input_data.shape[1]}. Please verify input feature processing.")
