@@ -14,6 +14,4 @@ imbalanced-learn-0.12.4
 
 catboost Version: 1.2.7
 
-
-This was uninstalled given conflicts with other libraries versions
-tensorflow 2.18
+Streamlit, version 1.41.1
