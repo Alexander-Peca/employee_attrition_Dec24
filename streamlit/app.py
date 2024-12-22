@@ -52,15 +52,12 @@ if department in departments:
 input_data = np.array([gender_encoded, age, tenure, salary, overtime_encoded, *department_encoded,
                        q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16]).reshape(1, -1)
 
-# Log the shape of the input data
-st.write(f"Input Data Shape: {input_data.shape}")
-
 # Predict attrition
 if st.button("Predict"):
     if input_data.shape[1] == 26:
         prob = model.predict_proba(input_data)[0][1]  # Probability of attrition (class 1)
         prediction = 1 if prob >= threshold else 0
         st.write(f"Attrition Prediction: {'Yes' if prediction == 1 else 'No'}")
-        st.write(f"Probability of Attrition: {prob:.2f}")
+        st.write(f"Probability of Attrition: {prob * 100:.2f}%")
     else:
         st.error(f"Error: Expected 26 features, but got {input_data.shape[1]}. Please verify input feature processing.")
