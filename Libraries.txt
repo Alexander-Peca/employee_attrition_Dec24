@@ -9,3 +9,11 @@ conda install scikit-learn=1.2.2
 conda install notebook=6.5.4
 
 conda install scipy 1.13.1
+
+imbalanced-learn-0.12.4
+
+catboost Version: 1.2.7
+
+
+This was uninstalled given conflicts with other libraries versions
+tensorflow 2.18
