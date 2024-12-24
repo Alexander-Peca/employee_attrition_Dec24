@@ -3,9 +3,9 @@ import joblib
 import numpy as np
 
 # Paths to load the model, threshold, and preprocessor
-model_path = r"C:\Users\alexa\OneDrive\AlexPerez\Dokumente\2 Soros\Data Science\Projects\employee_attrition_Dec24\models\logistic_regression_model.pkl"
-threshold_path = r"C:\Users\alexa\OneDrive\AlexPerez\Dokumente\2 Soros\Data Science\Projects\employee_attrition_Dec24\models\logistic_regression_threshold.pkl"
-preprocessor_path = r"C:\Users\alexa\OneDrive\AlexPerez\Dokumente\2 Soros\Data Science\Projects\employee_attrition_Dec24\models\preprocessor.pkl"
+model_path = r""
+threshold_path = r""
+preprocessor_path = r""
 
 # Load the saved model, threshold, and preprocessor
 model = joblib.load(model_path)
