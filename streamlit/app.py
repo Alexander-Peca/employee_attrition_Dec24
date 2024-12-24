@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import numpy as np
+from sklearn.preprocessing import RobustScaler
 
 # Load the saved logistic regression model and threshold
 model_path = r"C:\Users\alexa\OneDrive\AlexPerez\Dokumente\2 Soros\Data Science\Projects\employee_attrition_Dec24\models\logistic_regression_model.pkl"
@@ -15,11 +16,14 @@ st.write("Enter employee details to predict the likelihood of attrition.")
 
 # Collect input from users
 gender = st.selectbox("Gender", ["Male", "Female"])
+department = st.selectbox("Department", ["Development", "QA", "Support", "Management"]) # excluding for the moment "DevOps"
+overtime = st.selectbox("Overtime", ["Yes", "No"])
 age = st.slider("Age", 20, 60, 30)
 tenure = st.slider("Tenure (Years)", 0, 40, 5)
 salary = st.number_input("Salary (USD)", min_value=50000, max_value=150000, value=100000)
-overtime = st.selectbox("Overtime", ["Yes", "No"])
-department = st.selectbox("Department", ["Development", "QA", "Support", "Management", "DevOps"])
+distance_to_work = st.slider("Distance to Work (km)", 0, 50, 10)
+
+
 
 # Q12+ Questions
 st.write("Answer the following questions on a scale from 1 (Strongly Disagree) to 5 (Strongly Agree):")
@@ -41,16 +45,22 @@ q15 = st.slider("Q15: I have received meaningful feedback in the last week.", 1,
 q16 = st.slider("Q16: My organization always delivers on the promise we make to customers.", 1, 5, 3)
 
 # Encode categorical variables
-gender_encoded = 1 if gender == "Male" else 0  # Binary encoding for gender
+gender_encoded = 1 if gender == "Male" else 0
 overtime_encoded = 1 if overtime == "Yes" else 0
-department_encoded = [0] * 5  # Initialize a zero vector for one-hot encoding
-departments = ["Development", "QA", "Support", "Management", "DevOps"]
+department_encoded = [0] * 4  # Initialize a zero vector for one-hot encoding
+departments = ["Development", "QA", "Support", "Management"] # Excluding DevOps for the moment
 if department in departments:
     department_encoded[departments.index(department)] = 1
 
 # Combine all features
-input_data = np.array([gender_encoded, age, tenure, salary, overtime_encoded, *department_encoded,
-                       q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16]).reshape(1, -1)
+input_data = np.array([
+    gender_encoded, *department_encoded, overtime_encoded, age, tenure, salary, distance_to_work,
+    q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16
+]).reshape(1, -1)
+
+# Scale numerical features (Age, Tenure, Salary, Distance_to_Work)
+scaler = RobustScaler()
+input_data[:, -20:] = scaler.fit_transform(input_data[:, -20:])
 
 # Predict attrition
 if st.button("Predict"):
