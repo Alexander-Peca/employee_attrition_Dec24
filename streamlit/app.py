@@ -1,14 +1,16 @@
 import streamlit as st
 import joblib
 import numpy as np
-from sklearn.preprocessing import RobustScaler
 
-# Load the saved logistic regression model and threshold
+# Paths to load the model, threshold, and preprocessor
 model_path = r"C:\Users\alexa\OneDrive\AlexPerez\Dokumente\2 Soros\Data Science\Projects\employee_attrition_Dec24\models\logistic_regression_model.pkl"
 threshold_path = r"C:\Users\alexa\OneDrive\AlexPerez\Dokumente\2 Soros\Data Science\Projects\employee_attrition_Dec24\models\logistic_regression_threshold.pkl"
+preprocessor_path = r"C:\Users\alexa\OneDrive\AlexPerez\Dokumente\2 Soros\Data Science\Projects\employee_attrition_Dec24\models\preprocessor.pkl"
 
+# Load the saved model, threshold, and preprocessor
 model = joblib.load(model_path)
 threshold = joblib.load(threshold_path)
+preprocessor = joblib.load(preprocessor_path)
 
 # Streamlit app layout
 st.title("Employee Attrition Predictor")
@@ -16,14 +18,12 @@ st.write("Enter employee details to predict the likelihood of attrition.")
 
 # Collect input from users
 gender = st.selectbox("Gender", ["Male", "Female"])
-department = st.selectbox("Department", ["Development", "QA", "Support", "Management"]) # excluding for the moment "DevOps"
-overtime = st.selectbox("Overtime", ["Yes", "No"])
 age = st.slider("Age", 20, 60, 30)
 tenure = st.slider("Tenure (Years)", 0, 40, 5)
 salary = st.number_input("Salary (USD)", min_value=50000, max_value=150000, value=100000)
-distance_to_work = st.slider("Distance to Work (km)", 0, 50, 10)
-
-
+distance_to_work = st.number_input("Distance to Work (km)", min_value=0, max_value=100, value=10)
+overtime = st.selectbox("Overtime", ["Yes", "No"])
+department = st.selectbox("Department", ["DevOps", "Development", "QA", "Support", "Management"])
 
 # Q12+ Questions
 st.write("Answer the following questions on a scale from 1 (Strongly Disagree) to 5 (Strongly Agree):")
@@ -44,23 +44,23 @@ q14 = st.slider("Q14: My organization cares about my overall wellbeing.", 1, 5, 
 q15 = st.slider("Q15: I have received meaningful feedback in the last week.", 1, 5, 3)
 q16 = st.slider("Q16: My organization always delivers on the promise we make to customers.", 1, 5, 3)
 
-# Encode categorical variables
-gender_encoded = 1 if gender == "Male" else 0
-overtime_encoded = 1 if overtime == "Yes" else 0
-department_encoded = [0] * 4  # Initialize a zero vector for one-hot encoding
-departments = ["Development", "QA", "Support", "Management"] # Excluding DevOps for the moment
-if department in departments:
-    department_encoded[departments.index(department)] = 1
+# Combine inputs into a dictionary for preprocessing
+input_dict = {
+    'Gender': gender,
+    'Department': department,
+    'Overtime': overtime,
+    'Age': age,
+    'Tenure': tenure,
+    'Salary': salary,
+    'Distance_to_Work': distance_to_work,
+    'Q1': q1, 'Q2': q2, 'Q3': q3, 'Q4': q4, 'Q5': q5, 'Q6': q6,
+    'Q7': q7, 'Q8': q8, 'Q9': q9, 'Q10': q10, 'Q11': q11, 'Q12': q12,
+    'Q13': q13, 'Q14': q14, 'Q15': q15, 'Q16': q16
+}
 
-# Combine all features
-input_data = np.array([
-    gender_encoded, *department_encoded, overtime_encoded, age, tenure, salary, distance_to_work,
-    q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16
-]).reshape(1, -1)
-
-# Scale numerical features (Age, Tenure, Salary, Distance_to_Work)
-scaler = RobustScaler()
-input_data[:, -20:] = scaler.fit_transform(input_data[:, -20:])
+# Transform inputs using the saved preprocessor
+input_df = pd.DataFrame([input_dict])  # Create a DataFrame with one row
+input_data = preprocessor.transform(input_df)
 
 # Predict attrition
 if st.button("Predict"):
@@ -71,3 +71,5 @@ if st.button("Predict"):
         st.write(f"Probability of Attrition: {prob * 100:.2f}%")
     else:
         st.error(f"Error: Expected 26 features, but got {input_data.shape[1]}. Please verify input feature processing.")
+
+
